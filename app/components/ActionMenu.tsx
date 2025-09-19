@@ -211,39 +211,6 @@ export default function ActionMenu({ isOpen, onClose, isMobile = false, onUpload
     }
   }
 
-export default function ActionMenu({ isOpen, onClose, isMobile = false, onUploadComplete, onUploadError }: ActionMenuProps) {
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
-    }
-  }, [isOpen, onClose])
-
-  if (!isOpen) return null
-
-  const handleUploadComplete = (url: string) => {
-    console.log('File uploaded successfully:', url)
-    onUploadComplete?.(url)
-    onClose()
-  }
-
-  const handleUploadError = (error: Error) => {
-    console.error('Upload error:', error)
-    onUploadError?.(error)
-  }
-
-  const handleAction = (actionName: string) => {
-    console.log(`Action selected: ${actionName}`)
-    // Aqui você pode implementar a lógica específica para cada ação
-    onClose()
-  }
-
   if (isMobile) {
     return (
       <>
