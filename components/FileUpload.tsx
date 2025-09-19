@@ -22,7 +22,7 @@ export function FileUploadButton({
 
   return (
     <div className={className}>
-      <UploadButton<OurFileRouter, "fileUploader">
+      <UploadButton
         endpoint="fileUploader"
         onClientUploadComplete={(res) => {
           setIsUploading(false);
@@ -63,7 +63,7 @@ export function MultipleFileUploadButton({
 
   return (
     <div className={className}>
-      <UploadButton<OurFileRouter, "multipleFileUploader">
+      <UploadButton
         endpoint="multipleFileUploader"
         onClientUploadComplete={(res) => {
           setIsUploading(false);
@@ -102,7 +102,7 @@ export function FileUploadDropzone({
 }: UploadComponentProps) {
   return (
     <div className={className}>
-      <UploadDropzone<OurFileRouter, "fileUploader">
+      <UploadDropzone
         endpoint="fileUploader"
         onClientUploadComplete={(res) => {
           if (res && res[0]) {
