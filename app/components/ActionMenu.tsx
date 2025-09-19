@@ -9,6 +9,8 @@ interface ActionMenuProps {
   isOpen: boolean
   onClose: () => void
   isMobile?: boolean
+  onUploadComplete?: (url: string) => void
+  onUploadError?: (error: Error) => void
 }
 
 const actions = [
@@ -32,7 +34,7 @@ const actions = [
   },
 ]
 
-export default function ActionMenu({ isOpen, onClose, isMobile = false }: ActionMenuProps) {
+export default function ActionMenu({ isOpen, onClose, isMobile = false, onUploadComplete, onUploadError }: ActionMenuProps) {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -50,13 +52,13 @@ export default function ActionMenu({ isOpen, onClose, isMobile = false }: Action
 
   const handleUploadComplete = (url: string) => {
     console.log('File uploaded successfully:', url)
-    // TODO: Refresh file list or show success message
+    onUploadComplete?.(url)
     onClose()
   }
 
   const handleUploadError = (error: Error) => {
     console.error('Upload error:', error)
-    // TODO: Show error message to user
+    onUploadError?.(error)
   }
 
   const handleAction = (actionName: string) => {

@@ -35,17 +35,19 @@ export default function FilesPage() {
             {currentPage === 'files' ? <MainContent /> : <TrashContent />}
           </div>
 
-          {/* Floating Action Button for Mobile - Only on Files page */}
-          {currentPage === 'files' && (
-            <FloatingActionButton onClick={() => setIsMobileActionMenuOpen(true)} />
-          )}
-
-          {/* Mobile Action Menu */}
-          <ActionMenu
-            isOpen={isMobileActionMenuOpen}
-            onClose={() => setIsMobileActionMenuOpen(false)}
-            isMobile={true}
+        {/* Floating Action Button for Mobile - Only on Files page */}
+        {currentPage === 'files' && (
+          <FloatingActionButton 
+            onClick={() => setIsMobileActionMenuOpen(true)} 
           />
+        )}
+
+        {/* Mobile Action Menu */}
+        <ActionMenu
+          isOpen={isMobileActionMenuOpen}
+          onClose={() => setIsMobileActionMenuOpen(false)}
+          isMobile={true}
+        />
         </div>
       </SignedIn>
       
