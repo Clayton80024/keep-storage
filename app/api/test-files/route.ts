@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { getUserFiles, getUserFolders } from '@/lib/database';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    console.log('🔍 Testing files API with Clayton user...');
     
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Find user in database by Clerk ID
+    // Get Clayton user directly from database
     const user = await prisma.user.findUnique({
-      where: { clerkId: userId }
+      where: { email: 'claytonofbusiness@gmail.com' }
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
+      return NextResponse.json({ error: 'Clayton user not found' }, { status: 404 });
     }
+
+    console.log('👤 Found user:', { id: user.id, email: user.email, clerkId: user.clerkId });
 
     // Get user files and folders using database user ID
     const files = await getUserFiles(user.id);
     const folders = await getUserFolders(user.id);
+
+    console.log('📁 Files found:', files.length);
+    console.log('📂 Folders found:', folders.length);
 
     // Transform data to match the current design
     const transformedFiles = files.map(file => ({
@@ -60,6 +60,14 @@ export async function GET(request: NextRequest) {
       .slice(0, 3);
 
     return NextResponse.json({
+      success: true,
+      debug: {
+        userId: user.id,
+        clerkId: user.clerkId,
+        email: user.email,
+        totalFiles: files.length,
+        totalFolders: folders.length
+      },
       allFiles: allItems,
       recentFiles,
       totalFiles: files.length,
@@ -67,8 +75,11 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching files:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('❌ Test files API error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
