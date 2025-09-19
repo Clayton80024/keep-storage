@@ -92,6 +92,7 @@ export async function createFile(
   size: number,
   mimeType: string,
   extension: string,
+  url?: string,
   folderId?: string
 ) {
   // Generate path
@@ -111,6 +112,7 @@ export async function createFile(
       name,
       originalName,
       path,
+      url,
       size,
       mimeType,
       extension,

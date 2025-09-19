@@ -53,6 +53,7 @@ model File {
   name        String
   originalName String
   path        String   // Full path like "/documents/work/project.pdf"
+  url         String?  // UploadThing URL
   size        Int      // File size in bytes
   mimeType    String   // MIME type like "application/pdf"
   extension   String   // File extension like "pdf"
