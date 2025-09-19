@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Plus, Search, Grid3X3, List, Trash2, Undo2, X } from 'lucide-react'
 
 const trashedFiles = [
@@ -9,6 +10,8 @@ const trashedFiles = [
 ]
 
 export default function TrashContent() {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+
   return (
     <div className="flex-1 flex flex-col bg-white">
       {/* Header - Desktop only */}
@@ -31,10 +34,24 @@ export default function TrashContent() {
 
             {/* View options */}
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 shadow-sm">
-              <button className="p-2.5 rounded-md bg-white shadow-sm text-gray-700 hover:text-gray-900 hover:shadow-md transition-all duration-200">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2.5 rounded-md transition-all duration-200 ${
+                  viewMode === 'grid'
+                    ? 'bg-white shadow-sm text-gray-700 hover:text-gray-900 hover:shadow-md'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-sm'
+                }`}
+              >
                 <Grid3X3 className="h-4 w-4" />
               </button>
-              <button className="p-2.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-sm transition-all duration-200">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2.5 rounded-md transition-all duration-200 ${
+                  viewMode === 'list'
+                    ? 'bg-white shadow-sm text-gray-700 hover:text-gray-900 hover:shadow-md'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-sm'
+                }`}
+              >
                 <List className="h-4 w-4" />
               </button>
             </div>
@@ -72,6 +89,32 @@ export default function TrashContent() {
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white shadow-sm placeholder:text-gray-400 text-gray-900"
           />
         </div>
+
+        {/* Mobile View options */}
+        <div className="flex items-center justify-center mt-4">
+          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 shadow-sm">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2.5 rounded-md transition-all duration-200 ${
+                viewMode === 'grid'
+                  ? 'bg-white shadow-sm text-gray-700 hover:text-gray-900 hover:shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-sm'
+              }`}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2.5 rounded-md transition-all duration-200 ${
+                viewMode === 'list'
+                  ? 'bg-white shadow-sm text-gray-700 hover:text-gray-900 hover:shadow-md'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-white hover:shadow-sm'
+              }`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* Content */}
@@ -95,39 +138,76 @@ export default function TrashContent() {
           </div>
 
           {trashedFiles.length > 0 ? (
-            <div className="space-y-3">
-              {trashedFiles.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 md:p-4 bg-gray-50/50 hover:bg-white hover:shadow-md rounded-lg border border-gray-200/40 transition-all duration-200 cursor-pointer group hover:border-red-200"
-                >
-                  <div className="flex items-center min-w-0 flex-1">
-                    <div className="h-10 w-10 md:h-11 md:w-11 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center mr-3 md:mr-4 shadow-sm flex-shrink-0">
-                      <Trash2 className="h-4 w-4 md:h-5 md:w-5 text-red-700" />
+            viewMode === 'list' ? (
+              <div className="space-y-3 transition-all duration-300">
+                {trashedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 md:p-4 bg-gray-50/50 hover:bg-white hover:shadow-md rounded-lg border border-gray-200/40 transition-all duration-200 cursor-pointer group hover:border-red-200"
+                  >
+                    <div className="flex items-center min-w-0 flex-1">
+                      <div className="h-10 w-10 md:h-11 md:w-11 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center mr-3 md:mr-4 shadow-sm flex-shrink-0">
+                        <Trash2 className="h-4 w-4 md:h-5 md:w-5 text-red-700" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-semibold text-gray-900 group-hover:text-red-700 transition-colors truncate">
+                          {file.name}
+                        </h4>
+                        <p className="text-xs md:text-sm text-gray-500 font-medium">
+                          <span className="hidden sm:inline">{file.size} • </span>Deleted {file.deleted}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-gray-900 group-hover:text-red-700 transition-colors truncate">
+                    <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
+                      <button className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Restore">
+                        <Undo2 className="h-4 w-4" />
+                      </button>
+                      <button className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete permanently">
+                        <X className="h-4 w-4" />
+                      </button>
+                      <span className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700 shadow-sm">
+                        {file.type.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 transition-all duration-300">
+                {trashedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50/50 hover:bg-white hover:shadow-md rounded-lg border border-gray-200/40 p-4 transition-all duration-200 cursor-pointer group hover:border-red-200"
+                  >
+                    <div className="text-center">
+                      <div className="h-16 w-16 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
+                        <Trash2 className="h-8 w-8 text-red-700" />
+                      </div>
+                      <h4 className="text-sm font-semibold text-gray-900 group-hover:text-red-700 transition-colors truncate mb-1">
                         {file.name}
                       </h4>
-                      <p className="text-xs md:text-sm text-gray-500 font-medium">
-                        <span className="hidden sm:inline">{file.size} • </span>Deleted {file.deleted}
+                      <p className="text-xs text-gray-500 font-medium mb-3">
+                        {file.size}
                       </p>
+                      <p className="text-xs text-gray-400 mb-3">
+                        Deleted {file.deleted}
+                      </p>
+                      <div className="flex items-center justify-center space-x-1 mb-2">
+                        <button className="p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors duration-200" title="Restore">
+                          <Undo2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors duration-200" title="Delete permanently">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-700 shadow-sm">
+                        {file.type.toUpperCase()}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
-                    <button className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Restore">
-                      <Undo2 className="h-4 w-4" />
-                    </button>
-                    <button className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200" title="Delete permanently">
-                      <X className="h-4 w-4" />
-                    </button>
-                    <span className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700 shadow-sm">
-                      {file.type.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           ) : (
             <div className="text-center py-12 md:py-16">
               <div className="h-12 w-12 md:h-16 md:w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

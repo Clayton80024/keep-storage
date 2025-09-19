@@ -24,7 +24,7 @@ export default function MobileHeader({ onMenuToggle, isMenuOpen }: MobileHeaderP
         </button>
         <div className="flex items-center ml-3">
           <Cloud className="h-7 w-7 text-gray-800 mr-2" />
-          <span className="text-lg font-bold text-gray-900 tracking-tight">CloudStorage</span>
+          <span className="text-lg font-bold text-gray-900 tracking-tight">KeepStorage</span>
         </div>
       </div>
 

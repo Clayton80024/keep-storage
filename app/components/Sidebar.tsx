@@ -1,6 +1,7 @@
 'use client'
 
 import { Cloud, FolderOpen, Trash2, User } from 'lucide-react'
+import { UserButton, useUser } from '@clerk/nextjs'
 
 interface SidebarProps {
   isOpen: boolean
@@ -10,6 +11,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, currentPage, onPageChange }: SidebarProps) {
+  const { user } = useUser()
+
   const navigation = [
     { name: 'Files', icon: FolderOpen, key: 'files' as const, current: currentPage === 'files' },
     { name: 'Trash', icon: Trash2, key: 'trash' as const, current: currentPage === 'trash' },
@@ -29,7 +32,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onPageChange }: 
         {/* Logo - Hidden on mobile (shown in MobileHeader) */}
         <div className="hidden lg:flex items-center px-6 py-6 bg-white border-b border-gray-200">
           <Cloud className="h-8 w-8 text-gray-800 mr-3" />
-          <span className="text-xl font-bold text-gray-900 tracking-tight">CloudStorage</span>
+          <span className="text-xl font-bold text-gray-900 tracking-tight">KeepStorage</span>
         </div>
 
         {/* Navigation */}
@@ -59,11 +62,25 @@ export default function Sidebar({ isOpen, onClose, currentPage, onPageChange }: 
 
         {/* User section */}
         <div className="border-t border-gray-200 p-4 bg-white">
-          <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-all duration-200 cursor-pointer">
-            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
-              <User className="h-4 w-4 text-gray-700" />
+          <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-all duration-200">
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "h-8 w-8",
+                  userButtonPopoverCard: "shadow-lg",
+                  userButtonPopoverFooter: "hidden"
+                }
+              }}
+            />
+            <div className="ml-3 flex-1 min-w-0">
+              <span className="text-sm font-semibold text-gray-900 truncate block">
+                {user?.firstName || user?.emailAddresses[0]?.emailAddress || 'Usuário'}
+              </span>
+              <span className="text-xs text-gray-500 truncate block">
+                {user?.emailAddresses[0]?.emailAddress}
+              </span>
             </div>
-            <span className="text-sm font-semibold">user</span>
           </div>
         </div>
       </div>
