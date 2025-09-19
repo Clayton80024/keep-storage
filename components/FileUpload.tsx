@@ -1,6 +1,6 @@
 'use client'
 
-import { UploadButton, UploadDropzone } from "@uploadthing/react";
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing-components";
 import { useState } from "react";
 import { Plus, Upload, FolderPlus, File } from "lucide-react";
 import type { OurFileRouter } from "@/lib/uploadthing";

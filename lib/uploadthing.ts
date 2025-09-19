@@ -1,7 +1,9 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getOrCreateUser, createFile } from "@/lib/database";
 
-const f = createUploadthing();
+const f = createUploadthing({
+  token: process.env.UPLOADTHING_TOKEN,
+});
 
 export const ourFileRouter = {
   // File upload handler
