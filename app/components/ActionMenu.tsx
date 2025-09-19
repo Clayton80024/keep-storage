@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Upload, FolderPlus, File, X } from 'lucide-react'
-import { FileUploadButton, MultipleFileUploadButton } from '../../components/FileUpload'
+import { Upload, FolderPlus, File, X, ArrowLeft } from 'lucide-react'
+import { FileUploadDropzone } from '../../components/FileUploadDropzone'
+import { CreateFolder } from '../../components/CreateFolder'
+import { CreateDocument } from '../../components/CreateDocument'
 
 interface ActionMenuProps {
   isOpen: boolean
@@ -13,26 +15,201 @@ interface ActionMenuProps {
   onUploadError?: (error: Error) => void
 }
 
-const actions = [
-  {
-    name: 'Upload Files',
-    icon: Upload,
-    color: 'emerald',
-    description: 'Upload files from your device'
-  },
-  {
-    name: 'New Folder',
-    icon: FolderPlus,
-    color: 'teal',
-    description: 'Create a new folder'
-  },
-  {
-    name: 'Create Document',
-    icon: File,
-    color: 'sky',
-    description: 'Start with a blank document'
-  },
-]
+type ActionType = 'main' | 'upload' | 'folder' | 'document'
+
+export default function ActionMenu({ isOpen, onClose, isMobile = false, onUploadComplete, onUploadError }: ActionMenuProps) {
+  const [currentAction, setCurrentAction] = useState<ActionType>('main')
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        if (currentAction === 'main') {
+          onClose()
+        } else {
+          setCurrentAction('main')
+        }
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen, onClose, currentAction])
+
+  if (!isOpen) return null
+
+  const handleUploadComplete = (url: string) => {
+    console.log('File uploaded successfully:', url)
+    onUploadComplete?.(url)
+    onClose()
+  }
+
+  const handleUploadError = (error: Error) => {
+    console.error('Upload error:', error)
+    onUploadError?.(error)
+  }
+
+  const handleCreateFolder = async (name: string) => {
+    console.log('Creating folder:', name)
+    // TODO: Implement folder creation
+    onClose()
+  }
+
+  const handleCreateDocument = async (type: string, name: string) => {
+    console.log('Creating document:', type, name)
+    // TODO: Implement document creation
+    onClose()
+  }
+
+  const handleBackToMain = () => {
+    setCurrentAction('main')
+  }
+
+  // Render different views based on current action
+  const renderContent = () => {
+    switch (currentAction) {
+      case 'upload':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleBackToMain}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Upload de Arquivos</h3>
+                <p className="text-sm text-gray-500">Arraste arquivos ou clique para selecionar</p>
+              </div>
+            </div>
+            <FileUploadDropzone
+              onUploadComplete={handleUploadComplete}
+              onUploadError={handleUploadError}
+              multiple={true}
+            />
+          </div>
+        )
+
+      case 'folder':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleBackToMain}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Nova Pasta</h3>
+                <p className="text-sm text-gray-500">Organize seus arquivos em pastas</p>
+              </div>
+            </div>
+            <CreateFolder
+              onCreateFolder={handleCreateFolder}
+              onCancel={handleBackToMain}
+            />
+          </div>
+        )
+
+      case 'document':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleBackToMain}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Novo Documento</h3>
+                <p className="text-sm text-gray-500">Crie um documento em branco</p>
+              </div>
+            </div>
+            <CreateDocument
+              onCreateDocument={handleCreateDocument}
+              onCancel={handleBackToMain}
+            />
+          </div>
+        )
+
+      default:
+        return (
+          <div className="space-y-4">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900">Create New</h3>
+              <p className="text-sm text-gray-500 mt-1">Choose what you'd like to create</p>
+            </div>
+
+            {/* Upload Files */}
+            <button
+              onClick={() => setCurrentAction('upload')}
+              className="w-full flex items-center p-4 text-left hover:bg-gradient-to-r hover:from-gray-50 hover:to-emerald-50/30 rounded-xl transition-all duration-200 group border border-transparent hover:border-emerald-100 hover:shadow-sm"
+            >
+              <div className="h-14 w-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
+                <Upload className="h-7 w-7 text-emerald-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-base font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                  Upload Arquivos
+                </h4>
+                <p className="text-sm text-gray-500 group-hover:text-gray-600 mt-0.5 transition-colors">
+                  Enviar arquivos do seu dispositivo
+                </p>
+              </div>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3">
+                <div className="h-2.5 w-2.5 bg-emerald-400 rounded-full"></div>
+              </div>
+            </button>
+
+            {/* Create Folder */}
+            <button
+              onClick={() => setCurrentAction('folder')}
+              className="w-full flex items-center p-4 text-left hover:bg-gradient-to-r hover:from-gray-50 hover:to-sky-50/30 rounded-xl transition-all duration-200 group border border-transparent hover:border-sky-100 hover:shadow-sm"
+            >
+              <div className="h-14 w-14 bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
+                <FolderPlus className="h-7 w-7 text-sky-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-base font-semibold text-gray-900 group-hover:text-sky-700 transition-colors">
+                  Nova Pasta
+                </h4>
+                <p className="text-sm text-gray-500 group-hover:text-gray-600 mt-0.5 transition-colors">
+                  Organizar arquivos em pastas
+                </p>
+              </div>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3">
+                <div className="h-2.5 w-2.5 bg-sky-400 rounded-full"></div>
+              </div>
+            </button>
+
+            {/* Create Document */}
+            <button
+              onClick={() => setCurrentAction('document')}
+              className="w-full flex items-center p-4 text-left hover:bg-gradient-to-r hover:from-gray-50 hover:to-purple-50/30 rounded-xl transition-all duration-200 group border border-transparent hover:border-purple-100 hover:shadow-sm"
+            >
+              <div className="h-14 w-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
+                <File className="h-7 w-7 text-purple-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-base font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">
+                  Novo Documento
+                </h4>
+                <p className="text-sm text-gray-500 group-hover:text-gray-600 mt-0.5 transition-colors">
+                  Criar documento em branco
+                </p>
+              </div>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3">
+                <div className="h-2.5 w-2.5 bg-purple-400 rounded-full"></div>
+              </div>
+            </button>
+          </div>
+        )
+    }
+  }
 
 export default function ActionMenu({ isOpen, onClose, isMobile = false, onUploadComplete, onUploadError }: ActionMenuProps) {
   useEffect(() => {
@@ -99,60 +276,9 @@ export default function ActionMenu({ isOpen, onClose, isMobile = false, onUpload
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="px-6 py-6 space-y-4">
-            {/* Upload Single File */}
-            <div className="space-y-2">
-              <div className="flex items-center p-4 bg-gray-50/50 rounded-xl">
-                <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                  <Upload className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-base font-semibold text-gray-900">Upload Arquivo</h4>
-                  <p className="text-sm text-gray-500 mt-1">Enviar um arquivo</p>
-                </div>
-              </div>
-              <FileUploadButton 
-                onUploadComplete={handleUploadComplete}
-                onUploadError={handleUploadError}
-                className="w-full"
-              />
-            </div>
-
-            {/* Upload Multiple Files */}
-            <div className="space-y-2">
-              <div className="flex items-center p-4 bg-gray-50/50 rounded-xl">
-                <div className="h-12 w-12 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                  <Upload className="h-6 w-6 text-teal-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-base font-semibold text-gray-900">Upload Múltiplos</h4>
-                  <p className="text-sm text-gray-500 mt-1">Enviar vários arquivos</p>
-                </div>
-              </div>
-              <MultipleFileUploadButton 
-                onUploadComplete={handleUploadComplete}
-                onUploadError={handleUploadError}
-                className="w-full"
-              />
-            </div>
-
-            {/* Create Folder */}
-            <button
-              onClick={() => handleAction('New Folder')}
-              className="w-full flex items-center p-5 text-left hover:bg-gradient-to-r hover:from-gray-50 hover:to-emerald-50/30 rounded-xl transition-all duration-200 group border border-transparent hover:border-emerald-100"
-            >
-              <div className="h-14 w-14 bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl flex items-center justify-center mr-5 flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
-                <FolderPlus className="h-7 w-7 text-sky-600" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-base font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">Nova Pasta</h4>
-                <p className="text-sm text-gray-500 group-hover:text-gray-600 mt-1 transition-colors">Criar uma nova pasta</p>
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3">
-                <div className="h-2.5 w-2.5 bg-emerald-400 rounded-full"></div>
-              </div>
-            </button>
+          {/* Content */}
+          <div className="px-6 py-6 max-h-96 overflow-y-auto">
+            {renderContent()}
           </div>
 
           {/* Footer tip */}
@@ -180,7 +306,7 @@ export default function ActionMenu({ isOpen, onClose, isMobile = false, onUpload
 
       {/* Modal Content */}
       <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 ease-out scale-100">
+        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 ease-out scale-100">
           {/* Header */}
           <div className="px-6 py-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-gray-100 relative">
             <div className="text-center">
@@ -195,64 +321,9 @@ export default function ActionMenu({ isOpen, onClose, isMobile = false, onUpload
             </button>
           </div>
 
-          {/* Actions */}
-          <div className="p-6 space-y-4">
-            {/* Upload Single File */}
-            <div className="space-y-2">
-              <div className="flex items-center p-4 bg-gray-50/50 rounded-xl">
-                <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                  <Upload className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-base font-semibold text-gray-900">Upload Arquivo</h4>
-                  <p className="text-sm text-gray-500 mt-1">Enviar um arquivo</p>
-                </div>
-              </div>
-              <FileUploadButton 
-                onUploadComplete={handleUploadComplete}
-                onUploadError={handleUploadError}
-                className="w-full"
-              />
-            </div>
-
-            {/* Upload Multiple Files */}
-            <div className="space-y-2">
-              <div className="flex items-center p-4 bg-gray-50/50 rounded-xl">
-                <div className="h-12 w-12 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                  <Upload className="h-6 w-6 text-teal-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-base font-semibold text-gray-900">Upload Múltiplos</h4>
-                  <p className="text-sm text-gray-500 mt-1">Enviar vários arquivos</p>
-                </div>
-              </div>
-              <MultipleFileUploadButton 
-                onUploadComplete={handleUploadComplete}
-                onUploadError={handleUploadError}
-                className="w-full"
-              />
-            </div>
-
-            {/* Create Folder */}
-            <button
-              onClick={() => handleAction('New Folder')}
-              className="w-full flex items-center p-4 text-left hover:bg-gradient-to-r hover:from-gray-50 hover:to-emerald-50/30 rounded-xl transition-all duration-200 group border border-transparent hover:border-emerald-100 hover:shadow-sm"
-            >
-              <div className="h-14 w-14 bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
-                <FolderPlus className="h-7 w-7 text-sky-600" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-base font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
-                  Nova Pasta
-                </h4>
-                <p className="text-sm text-gray-500 group-hover:text-gray-600 mt-0.5 transition-colors">
-                  Criar uma nova pasta
-                </p>
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3">
-                <div className="h-2.5 w-2.5 bg-emerald-400 rounded-full"></div>
-              </div>
-            </button>
+          {/* Content */}
+          <div className="p-6 max-h-96 overflow-y-auto">
+            {renderContent()}
           </div>
 
           {/* Footer */}
