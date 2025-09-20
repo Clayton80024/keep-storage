@@ -173,3 +173,4 @@ export function CreateDocument({ onCreateDocument, onCancel, className = "" }: C
     </div>
   );
 }
+

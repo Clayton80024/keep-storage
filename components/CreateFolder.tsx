@@ -95,3 +95,4 @@ export function CreateFolder({ onCreateFolder, onCancel, className = "" }: Creat
     </div>
   );
 }
+
